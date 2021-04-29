@@ -88,6 +88,7 @@ class HolidaysGetter {
 
     /**
      * @return array
+     * Each time we need to do that request, because countries list can change
      * @throws \App\Services\HolidayException
      */
     public static function get_countries_list(bool $get_codes = false) : array {
