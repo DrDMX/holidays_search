@@ -25,10 +25,10 @@ class HolidayController extends Controller
             $current_date_status = $_holiday_service->get_current_date_status();
             $holidays_count = $_holiday_service->get_holidays_count();
             $free_days_count = $_holiday_service->get_free_days_in_year();
-        } catch (HolidayException) {
+        } catch (HolidayException $ex) {
             $errors = new MessageBag();
             $errors->add('Api Error',  $ex->getMessage());
-        } catch (\Exception $ex) { // we need this block for HolidaysService::get_free_days_in_year function
+        } catch (\Exception $ex) { // we need this block for HolidaysService::get_free_days_in_year
             $errors = new MessageBag();
             $errors->add('Code Error',  $ex->getMessage());
         }
