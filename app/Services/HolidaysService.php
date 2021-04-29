@@ -47,10 +47,17 @@ class HolidaysService {
         return $result;
     }
 
+    /**
+     * @return int
+     */
     public function get_holidays_count() {
         return count($this->holidays);
     }
 
+    /**
+     * @return int
+     * @throws \Exception
+     */
     public function get_free_days_in_year() {
         $startdate = new \DateTime('01/01/'.$this->year);
         $enddate = new \DateTime('12/31/'.$this->year);
@@ -68,8 +75,7 @@ class HolidaysService {
             $startdate->add($interval);
         } while ($startdate <> $enddate);
 
-           return $free_days;
-
+        return $free_days;
     }
 
     /**
