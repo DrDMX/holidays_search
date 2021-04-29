@@ -35,7 +35,7 @@ class HolidaysGetter {
         }
         $response = Http::get($url);
         $response_array = json_decode($response->body(), true);
-        if ($response->status() !== 200) {
+        if ($response->status() !== 200 || !empty($response_array['error'])) {
             $error = $response_array['error'] ?? 'Sending request error.';
             throw new HolidayException($error);
         }
@@ -48,10 +48,9 @@ class HolidaysGetter {
      */
     protected static function process_and_save_holidays_to_db(array $holidays) : array {
         $result = [];
-
         foreach($holidays AS $holiday) {
             $original_name = $en_name = "";
-            $date = "{$holiday['date']['year']}-{$holiday['date']['month']}-{$holiday['date']['day']}";
+            $date = new \DateTime("{$holiday['date']['year']}-{$holiday['date']['month']}-{$holiday['date']['day']}");
             foreach ($holiday['name'] AS $name) {
                 if ($name['lang']==='en') {
                     $en_name = $name['text'];
@@ -63,7 +62,7 @@ class HolidaysGetter {
                 }
             }
             $holiday = new Holiday();
-            $holiday->date = $date;
+            $holiday->date = $date->format('Y-m-d');
             $holiday->original_name = $original_name;
             $holiday->en_name = $en_name;
             $holiday->country_code = self::$country_code;

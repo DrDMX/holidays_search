@@ -8,18 +8,19 @@ use App\Models\Holiday;
 
 class HolidaysService {
     protected $country_code, $year;
-
+    protected $holidays = [];
     public function __construct(string $country_code, int $year) {
         $this->country_code = $country_code;
         $this->year = $year;
         $this->verify_country_code($this->country_code);
+        $this->holidays = $this->load_holidays();
     }
 
     /**
      * @return array|null
      */
     public function get_holidays_by_month() : ?array {
-        return $this->group_by_month($this->get_holidays_from_db() ?? $this->get_holidays_from_api());
+        return $this->group_by_month($this->holidays);
     }
 
     /**
@@ -27,7 +28,7 @@ class HolidaysService {
      * @throws \App\Services\HolidayException
      */
     public function get_holidays() : array {
-        return  $this->get_holidays_from_db() ?? HolidaysGetter::get_holidays_list($this->country_code, $this->year);
+        return  $this->holidays;
     }
 
     /**
@@ -44,6 +45,39 @@ class HolidaysService {
             $result = DayStatuses::$free;
         }
         return $result;
+    }
+
+    public function get_holidays_count() {
+        return count($this->holidays);
+    }
+
+    public function get_free_days_in_year() {
+        $startdate = new \DateTime('01/01/'.$this->year);
+        $enddate = new \DateTime('12/31/'.$this->year);
+        $interval = new \DateInterval('P1D');
+        $free_days = 0;
+        $holidays_dates_array = array_map(function($el) {
+           return $el->date;
+        }, $this->holidays);
+        do {
+            $dow = $startdate->format('w');
+            $date_str = $startdate->format('Y-m-d');
+            if (in_array($dow, [0,6]) || in_array($date_str, $holidays_dates_array)) {
+                $free_days++;
+            }
+            $startdate->add($interval);
+        } while ($startdate <> $enddate);
+
+           return $free_days;
+
+    }
+
+    /**
+     * @return array
+     * @throws \App\Services\HolidayException
+     */
+    protected function load_holidays() {
+        return $this->get_holidays_from_db() ?? HolidaysGetter::get_holidays_list($this->country_code, $this->year);
     }
 
     /**

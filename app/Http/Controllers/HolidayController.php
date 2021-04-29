@@ -17,22 +17,28 @@ class HolidayController extends Controller
             'year'=>'required|integer|min:2010|max:2040'
         ]);
         try {
-            $_holiday_getter = new HolidaysService($request->get('country_id'), $request->get('year'));
-            $holidays = $_holiday_getter->get_holidays();
-            $current_date_status = $_holiday_getter->get_current_date_status();
+            $_holiday_service = new HolidaysService($request->get('country_id'), $request->get('year'));
+            $holidays = $_holiday_service->get_holidays_by_month();
+            $current_date_status = $_holiday_service->get_current_date_status();
+            $holidays_count = $_holiday_service->get_holidays_count();
+            $free_days_count = $_holiday_service->get_free_days_in_year();
         } catch (HolidayException $ex) {
             $error_message = $ex->getMessage();
             $errors = new MessageBag();
             $errors->add('Api Error', $error_message);
             $holidays = [];
             $current_date_status = '';
+            $holidays_count = $free_days_count = 0;
         }
         $params = [
             'holidays'=>$holidays,
             'countries'=>HolidaysGetter::get_countries_list(),
             'selected_country'=>$request->get('country_id'),
             'selected_year'=>$request->get('year'),
-            'current_date_status'=>$current_date_status];
+            'current_date_status'=>$current_date_status,
+            'holidays_count'=>$holidays_count,
+            'free_days_count'=>$free_days_count
+        ];
         return !empty($errors) ? view('search', $params)->withErrors($errors) : view('search', $params);
     }
 

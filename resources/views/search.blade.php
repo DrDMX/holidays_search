@@ -1,11 +1,11 @@
 @extends('layout');
 
 @section('title')
-    Search
+    Holidays Search
 @endsection
 
 @section('main_content')
-    <h1>Search engine</h1>
+    <h1>Holidays Search engine</h1>
     @if($errors->any())
         <div class="alert-danger alert">
             <ul>
@@ -46,7 +46,8 @@
 
     @if(!empty($holidays))
         <div>Today: {{ date('Y-m-d') }}  @if(!empty($current_date_status)) {{ $current_date_status }} @endif</div>
-        <div>Total holidays: {{ count($holidays) }}</div>
+        <div>Total holidays: {{ $holidays_count }}</div>
+        <div>Total Free Days in Year: {{ $free_days_count }} (Holidays and Weekends)</div>
         <div class="table-responsive">
         <table class="table text-center table-bordered">
             <thead class="thead-dark">
