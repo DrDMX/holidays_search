@@ -14,6 +14,6 @@ use App\Http\Controllers\HolidayController;
 |
 */
 
-Route::get('/',[HolidaysController::class, 'get_start_page']);
+Route::get('/',[HolidayController::class, 'get_start_page']);
 
-Route::post('/search', [HolidaysController::class, 'get_holidays']);
+Route::post('/search', [HolidayController::class, 'get_holidays']);

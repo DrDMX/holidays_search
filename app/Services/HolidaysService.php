@@ -9,9 +9,9 @@ use App\Models\Holiday;
 class HolidaysService {
     protected $country_code, $year;
 
-    public function __construct(string $country_code, integer $year) {
-        $this->country_code;
-        $this->year;
+    public function __construct(string $country_code, int $year) {
+        $this->country_code = $country_code;
+        $this->year = $year;
         $this->verify_country_code($this->country_code);
     }
 

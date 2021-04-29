@@ -16,6 +16,7 @@ class HolidaysGetter {
     const API_URL = "https://kayaposoft.com/enrico/json/v2.0";
     private static $available_methods = ['getHolidaysForYear', 'getSupportedCountries', 'isPublicHoliday', 'isWorkDay'];
     private static $country_code, $year;
+    //we will use static array for storring countries per 1 client call
     private static $countries = [];
 
     /**
@@ -79,7 +80,7 @@ class HolidaysGetter {
      * @return array
      * @throws \App\Services\HolidayException
      */
-    public static function get_holidays_list(string $country_code, integer $year) : array {
+    public static function get_holidays_list(string $country_code, int $year) : array {
         self::$country_code = $country_code;
         self::$year = $year;
         $holidays = self::send_request('getHolidaysForYear', ['year'=>self::$year, 'country'=>self::$country_code]);
@@ -117,7 +118,7 @@ class HolidaysGetter {
      */
     public static function is_work_day(\DateTime $date, string $country_code) : bool {
         $date_str = $date->format('d-m-Y');
-        $response = self::send_request('isWorkDay', ['date'=>$date_str, 'coutry'=>$country_code]);
+        $response = self::send_request('isWorkDay', ['date'=>$date_str, 'country'=>$country_code]);
         return $response['isWorkDay'];
     }
 
@@ -129,7 +130,7 @@ class HolidaysGetter {
      */
     public static function is_holiday(\DateTime $date, string $country_code) : bool {
         $date_str = $date->format('d-m-Y');
-        $response = self::send_request('isPublicHoliday', ['date'=>$date_str, 'coutry'=>$country_code]);
+        $response = self::send_request('isPublicHoliday', ['date'=>$date_str, 'country'=>$country_code]);
         return $response['isPublicHoliday'];
     }
 

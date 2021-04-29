@@ -18,8 +18,8 @@ class HolidayController extends Controller
         ]);
         try {
             $_holiday_getter = new HolidaysService($request->get('country_id'), $request->get('year'));
-            $holidays = $this->holiday_instance->get_holidays();
-            $current_date_status = $this->holiday_instance->get_current_date_status();
+            $holidays = $_holiday_getter->get_holidays();
+            $current_date_status = $_holiday_getter->get_current_date_status();
         } catch (HolidayException $ex) {
             $error_message = $ex->getMessage();
             $errors = new MessageBag();
@@ -27,7 +27,6 @@ class HolidayController extends Controller
             $holidays = [];
             $current_date_status = '';
         }
-        dd($current_date_status);
         $params = [
             'holidays'=>$holidays,
             'countries'=>HolidaysGetter::get_countries_list(),
