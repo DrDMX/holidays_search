@@ -12,12 +12,11 @@ use App\Models\Holiday;
  * @package App\Services
  */
 class HolidaysGetter {
-    /**
-     *
-     */
+
     const API_URL = "https://kayaposoft.com/enrico/json/v2.0";
     private static $available_methods = ['getHolidaysForYear', 'getSupportedCountries', 'isPublicHoliday', 'isWorkDay'];
     private static $country_code, $year;
+    private static $countries = [];
 
     /**
      * @param string $action
@@ -46,7 +45,7 @@ class HolidaysGetter {
      * @param array $holidays
      * @return array
      */
-    protected static  function ProcessAndSaveHolidaysToDb(array $holidays) : array {
+    protected static function process_and_save_holidays_to_db(array $holidays) : array {
         $result = [];
 
         foreach($holidays AS $holiday) {
@@ -84,17 +83,53 @@ class HolidaysGetter {
         self::$country_code = $country_code;
         self::$year = $year;
         $holidays = self::send_request('getHolidaysForYear', ['year'=>self::$year, 'country'=>self::$country_code]);
-        return self::ProcessAndSaveHolidaysToDb($holidays);;
+        return self::process_and_save_holidays_to_db($holidays);;
     }
 
-    public static function get_countries_list() {
-        $result = [];
-        $coutries = self::send_request('getSupportedCountries');
-        foreach($coutries AS $country) {
-            $country_obj = new Country($country['countryCode'], $country['fullName']);
-            $result[] = $country_obj;
+    /**
+     * @return array
+     * @throws \App\Services\HolidayException
+     */
+    public static function get_countries_list(bool $get_codes = false) : array {
+        if (!empty(self::$countries)) {
+            return self::$countries;
+        } else {
+            $result = [];
+            $coutries = self::send_request('getSupportedCountries');
+            foreach ($coutries as $country) {
+                if ($get_codes) {
+                    $result[] = $country['countryCode'];
+                } else {
+                    $country_obj = new Country($country['countryCode'], $country['fullName']);
+                    $result[] = $country_obj;
+                }
+            }
+            return $result;
         }
-        return $result;
+    }
+
+    /**
+     * @param \DateTime $date
+     * @param string $country_code
+     * @return bool
+     * @throws \App\Services\HolidayException
+     */
+    public static function is_work_day(\DateTime $date, string $country_code) : bool {
+        $date_str = $date->format('d-m-Y');
+        $response = self::send_request('isWorkDay', ['date'=>$date_str, 'coutry'=>$country_code]);
+        return $response['isWorkDay'];
+    }
+
+    /**
+     * @param \DateTime $date
+     * @param string $country_code
+     * @return bool
+     * @throws \App\Services\HolidayException
+     */
+    public static function is_holiday(\DateTime $date, string $country_code) : bool {
+        $date_str = $date->format('d-m-Y');
+        $response = self::send_request('isPublicHoliday', ['date'=>$date_str, 'coutry'=>$country_code]);
+        return $response['isPublicHoliday'];
     }
 
 }
